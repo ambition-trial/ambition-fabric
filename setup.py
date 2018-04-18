@@ -16,7 +16,7 @@ setup(
     author_email='ew2789@gmail.com',
     packages=find_packages(),
     include_package_data=True,
-    url='https://github.com/botswana-harvard/ambition-fabric',
+    url='https://github.com/ambition-study/ambition-fabric',
     license='GPL license, see LICENSE',
     description='Fabric deployment scripts for Ambition',
     long_description=README,
