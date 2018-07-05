@@ -56,7 +56,7 @@ Create a venv
     python -m venv bcpp ~/.venvs
     source ~/.venvs/bcpp/bin/activate
     pip install Fabric3
-    pip install git+https://github.com/ambition-trail/bcpp-fabric.git@develop#egg=bcpp_fabric
+    pip install git+https://github.com/ambition-trial/bcpp-fabric.git@develop#egg=bcpp_fabric
     
 
 If releases need to be cut, do so. You will need clones of all the repos onto your local machine.
