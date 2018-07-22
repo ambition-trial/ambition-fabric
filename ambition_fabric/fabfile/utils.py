@@ -1,12 +1,12 @@
 import os
- 
+
 from fabric.api import task, run
- 
+
 from fabric.api import warn, cd, env
 from fabric.colors import yellow, blue
 from fabric.contrib.files import exists, sed
 from fabric.contrib.project import rsync_project
- 
+
 from edc_fabric.fabfile.utils import (
     rsync_deployment_root, ssh_copy_id, test_connection2,
     launch_webserver_task, launch_webserver)
@@ -14,8 +14,8 @@ from edc_fabric.fabfile.environment import (
     bootstrap_env, update_fabric_env)
 from edc_fabric.fabfile.mysql import install_protocol_database
 from fabric.operations import sudo
- 
- 
+
+
 @task
 def validate(release=None, pull=None):
     """
@@ -50,57 +50,57 @@ def validate(release=None, pull=None):
                         warn(yellow(f'{env.host}: Media folder not ready'))
                     else:
                         warn(blue(f'{env.host}: OK'))
- 
- 
+
+
 @task
 def restore_media_folder(bootstrap_path=None, bootstrap_branch=None, use_local_fabric_conf=True):
     """Restores media/edc_map from the external backup
- 
+
     For example:
- 
+
         fab -P -R mmankgodi utils.restore_media_folder:bootstrap_path=/Users/django/source/bcpp/fabfile/conf/,bootstrap_branch=develop,use_local_fabric_conf=True --user=django
     """
     bootstrap_env(
         path=bootstrap_path,
         filename='bootstrap_client.conf',
         bootstrap_branch=bootstrap_branch)
- 
+
     update_fabric_env(use_local_fabric_conf=use_local_fabric_conf)
- 
+
     local_dir = '/Volumes/BONTSI/Village\ Maps/mmankgodi\ maps/media/edc_map'
- 
+
     remote_dir = os.path.join('~/media/edc_map')
- 
+
     if exists(remote_dir):
         run(f'rm -rf {remote_dir}', warn_only=True)
     run(f'mkdir -p {remote_dir}', warn_only=True)
- 
+
     rsync_project(local_dir=local_dir, remote_dir=remote_dir)
- 
- 
+
+
 @task
 def install_protocol_database_task(bootstrap_path=None, bootstrap_branch=None,
                                    db_archive_name=None, skip_backup=None):
     """Overwrites the client DB.
- 
+
     For example:
- 
+
         fab -P -R lentsweletau deploy.install_protocol_database_task:bootstrap_path=/Users/erikvw/source/ambition/fabfile/conf/,bootstrap_branch=develo,db_archive_name=edc_deployment_201704092123.sql
- 
+
     """
     bootstrap_env(
         path=bootstrap_path,
         filename='bootstrap_client.conf',
         bootstrap_branch=bootstrap_branch)
- 
+
     rsync_deployment_root()
- 
+
     update_fabric_env()
- 
+
     install_protocol_database(
         db_archive_name=db_archive_name, skip_backup=skip_backup)
- 
- 
+
+
 def update_ambition_conf(project_conf=None, map_area=None):
     """Updates the ambition.conf file on the remote host.
     """
@@ -112,24 +112,24 @@ def update_ambition_conf(project_conf=None, map_area=None):
     sed(remote_copy, 'map_area \=.*',
         'map_area \= {}'.format(map_area or ''),
         use_sudo=True)
- 
- 
+
+
 @task
 def change_map_area_task(map_area=None, bootstrap_path=None, bootstrap_branch=None):
     """Change a remote host's map area and restart web.
- 
+
     For example:
- 
+
         fab -H bcpp057 utils.change_map_area_task:bootstrap_path=/Users/erikvw/source/ambition/fabfile/conf/,bootstrap_branch=develop,map_area=mmankgodi --user=django
- 
+
     """
     bootstrap_env(
         path=bootstrap_path,
         filename='bootstrap_client.conf',
         bootstrap_branch=bootstrap_branch)
- 
+
     update_fabric_env()
- 
+
     update_ambition_conf(map_area=map_area)
- 
+
     launch_webserver()
